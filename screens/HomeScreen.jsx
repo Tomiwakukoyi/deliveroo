@@ -6,7 +6,7 @@ import {
   TextInput,
   ScrollView,
 } from "react-native";
-import React, { useLayoutEffect } from "react";
+import React, { useLayoutEffect, useState, useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
 import {
   UserIcon,
@@ -16,8 +16,25 @@ import {
 } from "react-native-heroicons/outline";
 import Categories from "./components/Categories";
 import FeaturedRow from "./components/FeaturedRow";
+import sanityClient from "../sanity";
 
 export default function HomeScreen() {
+  const [featuredCategories, setFeaturedCategories] = useState([]);
+  useEffect(() => {
+    sanityClient
+      .fetch(
+        `
+    *[_type == "featured" ]{
+  ...,
+  restaurants[]=>{
+    ...,
+    dishes[]=>{}
+  }
+}`
+      )
+      .then((data) => setFeaturedCategories(data)); //setting the data returned from the API calls as featured categories
+  }, []);
+
   const navigation = useNavigation();
 
   //As soon as the screen loads, the useLayout takes effect
